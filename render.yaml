@@ -1,0 +1,16 @@
+# Render Blueprint configuration for the ORIGINAL Python MCP adapter.
+# Authentication: Do NOT remove the bearer-token check to bypass setup.
+# A bearer-token-protected server may require a supported connection method
+# in ChatGPT (such as an approved tunnel/OAuth path).
+services:
+  - type: web
+    name: retail-demand-forecast-reviewer
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: MCP_HOST
+        value: 0.0.0.0
+      - key: MCP_BEARER_TOKEN
+        sync: false

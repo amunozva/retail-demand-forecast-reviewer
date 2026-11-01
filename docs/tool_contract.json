@@ -1,0 +1,14 @@
+{
+  "tool_name": "analyze_orange_juice_demand",
+  "description": "Read validated historical OJ sales, calculate course-aligned forecasts and errors, apply escalation rules, and produce a one-week planning recommendation. No external actions.",
+  "input_schema": {
+    "type": "object", "additionalProperties": false,
+    "properties": {
+      "intent": {"type": "string", "enum": ["forecast", "place_order"], "default": "forecast"},
+      "scenario_last_week_units": {"type": "integer", "minimum": 0, "description":"Optional explicitly hypothetical week 160 demand; does not update real source."},
+      "missing_last_week": {"type": "boolean", "description":"True when a revised case makes week 160 unavailable and forbids consulting the original figure."},
+      "claimed_last_week_units": {"type": "integer", "minimum": 0, "description":"Conflicting claimed actual; human must determine source of truth."}
+    }
+  },
+  "outputs": "JSON with status, source, validation+holdout metrics, selected model, forecast_week, forecast_units, warnings, and human approval condition; escalation statuses omit forecast."
+}

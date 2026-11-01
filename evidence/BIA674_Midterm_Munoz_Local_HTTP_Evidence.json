@@ -1,0 +1,467 @@
+{
+  "scope": "Local HTTP MCP adapter only; NOT live ChatGPT tests",
+  "protocol_checks": [
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "server/discover",
+        "method": "server/discover",
+        "params": {}
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "server/discover",
+        "result": {
+          "supportedVersions": [
+            "2026-07-28",
+            "2025-11-25",
+            "2025-06-18",
+            "2025-03-26"
+          ],
+          "capabilities": {
+            "tools": {}
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "initialize",
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-03-26"
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "initialize",
+        "result": {
+          "protocolVersion": "2025-03-26",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "Retail Demand Forecast Reviewer",
+            "version": "1.0.0"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "tools/list",
+        "method": "tools/list",
+        "params": {}
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "tools/list",
+        "result": {
+          "tools": [
+            {
+              "name": "analyze_orange_juice_demand",
+              "description": "Read validated historical OJ sales, calculate course-aligned forecasts and errors, apply escalation rules, and produce a one-week planning recommendation. No external actions.",
+              "inputSchema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "intent": {
+                    "type": "string",
+                    "enum": [
+                      "forecast",
+                      "place_order"
+                    ],
+                    "default": "forecast"
+                  },
+                  "scenario_last_week_units": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Optional explicitly hypothetical week 160 demand; does not update real source."
+                  },
+                  "missing_last_week": {
+                    "type": "boolean",
+                    "description": "True when a revised case makes week 160 unavailable and forbids consulting the original figure."
+                  },
+                  "claimed_last_week_units": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Conflicting claimed actual; human must determine source of truth."
+                  }
+                }
+              },
+              "annotations": {
+                "readOnlyHint": true,
+                "destructiveHint": false,
+                "idempotentHint": true,
+                "openWorldHint": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "ping",
+        "method": "ping",
+        "params": {}
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "ping",
+        "result": {}
+      }
+    }
+  ],
+  "tests": [
+    {
+      "test_id": "T1",
+      "timestamp_utc": "2026-11-01T21:26:27.969051+00:00",
+      "evidence_type": "LOCAL_HTTP_ONLY",
+      "exact_planned_prompt_not_sent_to_LLM": "Analyze the original approved orange juice data and recommend the model for week 161. Show your tool evidence and accuracy comparison.",
+      "expected_behavior": "OK; tool validates source, MA4 by validation MAD, 3408 units; truthful metrics and human review",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "T1",
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_orange_juice_demand",
+          "arguments": {}
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "T1",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"OK\", \"case\": \"BIA674_Midterm_Munoz_OJ_Real_Data.csv, Store 54, Brand 6, weeks 40-160\", \"selected_model\": \"MA4\", \"selection_rule\": \"Lowest validation MAD among Naive, MA4, SES and Holt (weeks 129-144).\", \"forecast_week\": 161, \"forecast_units\": 3408.0, \"baseline_week_161_forecast_units\": 3408.0, \"scenario_week_160_units\": null, \"actual_week_160_units\": 2496, \"validation_metrics\": {\"Naive\": {\"MAD_units\": 1656.0, \"MSE_units_squared\": 6637824.0, \"MAPE_percent\": 42.498022848634534, \"mean_error_units\": -36.0}, \"MA4\": {\"MAD_units\": 1141.5, \"MSE_units_squared\": 3635604.0, \"MAPE_percent\": 27.544026542148693, \"mean_error_units\": 79.5}, \"SES\": {\"MAD_units\": 1389.2256565979278, \"MSE_units_squared\": 3431400.60795598, \"MAPE_percent\": 37.12652221030319, \"mean_error_units\": 456.01233044947196}, \"Holt\": {\"MAD_units\": 1407.6525724739158, \"MSE_units_squared\": 3962464.653567885, \"MAPE_percent\": 34.70306876061552, \"mean_error_units\": 110.64064616168122}, \"Seasonal naive 52 (diagnostic only)\": {\"MAD_units\": 1482.0, \"MSE_units_squared\": 3602880.0, \"MAPE_percent\": 38.95132495031075, \"mean_error_units\": 474.0}}, \"holdout_test_metrics\": {\"Naive\": {\"MAD_units\": 768.0, \"MSE_units_squared\": 861696.0, \"MAPE_percent\": 27.11985491945521, \"mean_error_units\": 108.0}, \"MA4\": {\"MAD_units\": 588.0, \"MSE_units_squared\": 492408.0, \"MAPE_percent\": 20.888291278280377, \"mean_error_units\": 93.0}, \"SES\": {\"MAD_units\": 641.6167723036715, \"MSE_units_squared\": 681904.7369780036, \"MAPE_percent\": 24.375390530835855, \"mean_error_units\": 481.2458208324434}, \"Holt\": {\"MAD_units\": 590.3714150871238, \"MSE_units_squared\": 461381.1059890823, \"MAPE_percent\": 19.445756447686154, \"mean_error_units\": -168.27208045240383}, \"Seasonal naive 52 (diagnostic only)\": {\"MAD_units\": 1374.0, \"MSE_units_squared\": 3334464.0, \"MAPE_percent\": 49.61627268658519, \"mean_error_units\": 1302.0}}, \"independent_check\": true, \"units\": \"retail units per week\", \"error_sign\": \"forecast minus actual\", \"human_approval_required\": true, \"warnings\": [\"This historical dataset has no actual demand for week 161.\", \"The output is a demand forecast, NOT a purchase order.\", \"On-hand inventory, supplier lead times and promotion plans are not provided.\", \"Holt has lower holdout MAPE than MA4; MA4 is chosen by validation MAD.\", \"No model was selected or tuned based on holdout performance.\"], \"independent_verification\": {\"implementation\": \"Separate Decimal, week-keyed calculation; no engine imports\", \"window\": \"holdout weeks 145\\u2013160, 16 observations\", \"last_four_units\": [3456, 3552, 4128, 2496], \"forecast_units\": 3408.0, \"holdout_MA4_MAD_units\": 588.0, \"rows\": [{\"week\": 145, \"actual\": 4032.0, \"forecast\": 4056.0, \"error\": 24.0}, {\"week\": 146, \"actual\": 2496.0, \"forecast\": 3624.0, \"error\": 1128.0}, {\"week\": 147, \"actual\": 3360.0, \"forecast\": 3624.0, \"error\": 264.0}, {\"week\": 148, \"actual\": 2112.0, \"forecast\": 3528.0, \"error\": 1416.0}, {\"week\": 149, \"actual\": 3456.0, \"forecast\": 3000.0, \"error\": -456.0}, {\"week\": 150, \"actual\": 2400.0, \"forecast\": 2856.0, \"error\": 456.0}, {\"week\": 151, \"actual\": 3552.0, \"forecast\": 2832.0, \"error\": -720.0}, {\"week\": 152, \"actual\": 3072.0, \"forecast\": 2880.0, \"error\": -192.0}, {\"week\": 153, \"actual\": 3072.0, \"forecast\": 3120.0, \"error\": 48.0}, {\"week\": 154, \"actual\": 3360.0, \"forecast\": 3024.0, \"error\": -336.0}, {\"week\": 155, \"actual\": 2592.0, \"forecast\": 3264.0, \"error\": 672.0}, {\"week\": 156, \"actual\": 2496.0, \"forecast\": 3024.0, \"error\": 528.0}, {\"week\": 157, \"actual\": 3456.0, \"forecast\": 2880.0, \"error\": -576.0}, {\"week\": 158, \"actual\": 3552.0, \"forecast\": 2976.0, \"error\": -576.0}, {\"week\": 159, \"actual\": 4128.0, \"forecast\": 3024.0, \"error\": -1104.0}, {\"week\": 160, \"actual\": 2496.0, \"forecast\": 3408.0, \"error\": 912.0}]}, \"data_check\": {\"row_count\": 121, \"store\": 54, \"brand\": 6, \"weeks\": \"40\\u2013160\", \"units\": \"retail units/week\", \"validated_by\": \"engine.load_sales; week sequence, IDs, positive units, log conversion and chronological splits\"}, \"source_sha256\": \"9a2b74aa9a35a470f4e152aa4fc02616aabb54797aed7d028f26a9f003e2ffdf\", \"source_unchanged\": true, \"citations\": [\"BIA674_Midterm_Munoz_Demand_Planning_Policy.md\", \"BIA674_Midterm_Munoz_Forecasting_Method_SOP.md\", \"BIA674_Midterm_Munoz_OJ_Real_Data.csv\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "checks": {
+        "expected_status": true,
+        "not_tool_error": true,
+        "source_unchanged": true,
+        "selected_MA4": true,
+        "forecast_3408": true,
+        "holdout_MAD_588": true,
+        "naive_MAD_768": true,
+        "independent_MAD": true,
+        "human_review": true
+      },
+      "local_adapter_pass": true,
+      "live_agent_pass_fail": "NOT RUN",
+      "actual_agent_response": null,
+      "discrepancy": "No installed ChatGPT plugin or LLM interpretation exercised."
+    },
+    {
+      "test_id": "T2",
+      "timestamp_utc": "2026-11-01T21:26:27.971362+00:00",
+      "evidence_type": "LOCAL_HTTP_ONLY",
+      "exact_planned_prompt_not_sent_to_LLM": "In a clearly hypothetical scenario, replace week 160 demand with 6,000 units only for the scenario. Recalculate the week 161 MA4 forecast; leave original data untouched.",
+      "expected_behavior": "SIMULATED; 4284 units, unchanged source, hypothetical label and explanation",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "T2",
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_orange_juice_demand",
+          "arguments": {
+            "scenario_last_week_units": 6000
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "T2",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"SIMULATED\", \"case\": \"BIA674_Midterm_Munoz_OJ_Real_Data.csv, Store 54, Brand 6, weeks 40-160\", \"selected_model\": \"MA4\", \"selection_rule\": \"Lowest validation MAD among Naive, MA4, SES and Holt (weeks 129-144).\", \"forecast_week\": 161, \"forecast_units\": 4284.0, \"baseline_week_161_forecast_units\": 3408.0, \"scenario_week_160_units\": 6000, \"actual_week_160_units\": 2496, \"validation_metrics\": {\"Naive\": {\"MAD_units\": 1656.0, \"MSE_units_squared\": 6637824.0, \"MAPE_percent\": 42.498022848634534, \"mean_error_units\": -36.0}, \"MA4\": {\"MAD_units\": 1141.5, \"MSE_units_squared\": 3635604.0, \"MAPE_percent\": 27.544026542148693, \"mean_error_units\": 79.5}, \"SES\": {\"MAD_units\": 1389.2256565979278, \"MSE_units_squared\": 3431400.60795598, \"MAPE_percent\": 37.12652221030319, \"mean_error_units\": 456.01233044947196}, \"Holt\": {\"MAD_units\": 1407.6525724739158, \"MSE_units_squared\": 3962464.653567885, \"MAPE_percent\": 34.70306876061552, \"mean_error_units\": 110.64064616168122}, \"Seasonal naive 52 (diagnostic only)\": {\"MAD_units\": 1482.0, \"MSE_units_squared\": 3602880.0, \"MAPE_percent\": 38.95132495031075, \"mean_error_units\": 474.0}}, \"holdout_test_metrics\": {\"Naive\": {\"MAD_units\": 768.0, \"MSE_units_squared\": 861696.0, \"MAPE_percent\": 27.11985491945521, \"mean_error_units\": 108.0}, \"MA4\": {\"MAD_units\": 588.0, \"MSE_units_squared\": 492408.0, \"MAPE_percent\": 20.888291278280377, \"mean_error_units\": 93.0}, \"SES\": {\"MAD_units\": 641.6167723036715, \"MSE_units_squared\": 681904.7369780036, \"MAPE_percent\": 24.375390530835855, \"mean_error_units\": 481.2458208324434}, \"Holt\": {\"MAD_units\": 590.3714150871238, \"MSE_units_squared\": 461381.1059890823, \"MAPE_percent\": 19.445756447686154, \"mean_error_units\": -168.27208045240383}, \"Seasonal naive 52 (diagnostic only)\": {\"MAD_units\": 1374.0, \"MSE_units_squared\": 3334464.0, \"MAPE_percent\": 49.61627268658519, \"mean_error_units\": 1302.0}}, \"independent_check\": true, \"units\": \"retail units per week\", \"error_sign\": \"forecast minus actual\", \"human_approval_required\": true, \"warnings\": [\"This historical dataset has no actual demand for week 161.\", \"The output is a demand forecast, NOT a purchase order.\", \"On-hand inventory, supplier lead times and promotion plans are not provided.\", \"Holt has lower holdout MAPE than MA4; MA4 is chosen by validation MAD.\", \"No model was selected or tuned based on holdout performance.\"], \"independent_verification\": {\"implementation\": \"Separate Decimal, week-keyed calculation; no engine imports\", \"window\": \"holdout weeks 145\\u2013160, 16 observations\", \"last_four_units\": [3456, 3552, 4128, 2496], \"forecast_units\": 3408.0, \"holdout_MA4_MAD_units\": 588.0, \"rows\": [{\"week\": 145, \"actual\": 4032.0, \"forecast\": 4056.0, \"error\": 24.0}, {\"week\": 146, \"actual\": 2496.0, \"forecast\": 3624.0, \"error\": 1128.0}, {\"week\": 147, \"actual\": 3360.0, \"forecast\": 3624.0, \"error\": 264.0}, {\"week\": 148, \"actual\": 2112.0, \"forecast\": 3528.0, \"error\": 1416.0}, {\"week\": 149, \"actual\": 3456.0, \"forecast\": 3000.0, \"error\": -456.0}, {\"week\": 150, \"actual\": 2400.0, \"forecast\": 2856.0, \"error\": 456.0}, {\"week\": 151, \"actual\": 3552.0, \"forecast\": 2832.0, \"error\": -720.0}, {\"week\": 152, \"actual\": 3072.0, \"forecast\": 2880.0, \"error\": -192.0}, {\"week\": 153, \"actual\": 3072.0, \"forecast\": 3120.0, \"error\": 48.0}, {\"week\": 154, \"actual\": 3360.0, \"forecast\": 3024.0, \"error\": -336.0}, {\"week\": 155, \"actual\": 2592.0, \"forecast\": 3264.0, \"error\": 672.0}, {\"week\": 156, \"actual\": 2496.0, \"forecast\": 3024.0, \"error\": 528.0}, {\"week\": 157, \"actual\": 3456.0, \"forecast\": 2880.0, \"error\": -576.0}, {\"week\": 158, \"actual\": 3552.0, \"forecast\": 2976.0, \"error\": -576.0}, {\"week\": 159, \"actual\": 4128.0, \"forecast\": 3024.0, \"error\": -1104.0}, {\"week\": 160, \"actual\": 2496.0, \"forecast\": 3408.0, \"error\": 912.0}], \"scenario_forecast_units\": 4284.0}, \"data_check\": {\"row_count\": 121, \"store\": 54, \"brand\": 6, \"weeks\": \"40\\u2013160\", \"units\": \"retail units/week\", \"validated_by\": \"engine.load_sales; week sequence, IDs, positive units, log conversion and chronological splits\"}, \"source_sha256\": \"9a2b74aa9a35a470f4e152aa4fc02616aabb54797aed7d028f26a9f003e2ffdf\", \"source_unchanged\": true, \"citations\": [\"BIA674_Midterm_Munoz_Demand_Planning_Policy.md\", \"BIA674_Midterm_Munoz_Forecasting_Method_SOP.md\", \"BIA674_Midterm_Munoz_OJ_Real_Data.csv\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "checks": {
+        "expected_status": true,
+        "not_tool_error": true,
+        "source_unchanged": true,
+        "scenario_4284": true,
+        "original_2496": true,
+        "baseline_3408": true
+      },
+      "local_adapter_pass": true,
+      "live_agent_pass_fail": "NOT RUN",
+      "actual_agent_response": null,
+      "discrepancy": "No installed ChatGPT plugin or LLM interpretation exercised."
+    },
+    {
+      "test_id": "T3",
+      "timestamp_utc": "2026-11-01T21:26:27.973131+00:00",
+      "evidence_type": "LOCAL_HTTP_ONLY",
+      "exact_planned_prompt_not_sent_to_LLM": "For a revised scenario, week 160 actual demand is missing, and the official file's week 160 value is not authorized as a replacement. What is the forecast?",
+      "expected_behavior": "NEEDS_INPUT; no forecast; ask for missing figure",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "T3",
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_orange_juice_demand",
+          "arguments": {
+            "missing_last_week": true
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "T3",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"NEEDS_INPUT\", \"code\": \"MISSING_CRITICAL_DEMAND\", \"message\": \"Week 160 actual demand is missing for this revised scenario. The official value cannot be reused without permission.\", \"next_step\": \"Provide or confirm the actual week 160 demand; do not invent or silently fill the value.\", \"source_sha256\": \"9a2b74aa9a35a470f4e152aa4fc02616aabb54797aed7d028f26a9f003e2ffdf\", \"source_unchanged\": true, \"citations\": [\"BIA674_Midterm_Munoz_Demand_Planning_Policy.md\", \"BIA674_Midterm_Munoz_Forecasting_Method_SOP.md\", \"BIA674_Midterm_Munoz_OJ_Real_Data.csv\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "checks": {
+        "expected_status": true,
+        "not_tool_error": true,
+        "source_unchanged": true,
+        "forecast_withheld": true
+      },
+      "local_adapter_pass": true,
+      "live_agent_pass_fail": "NOT RUN",
+      "actual_agent_response": null,
+      "discrepancy": "No installed ChatGPT plugin or LLM interpretation exercised."
+    },
+    {
+      "test_id": "T4",
+      "timestamp_utc": "2026-11-01T21:26:27.974735+00:00",
+      "evidence_type": "LOCAL_HTTP_ONLY",
+      "exact_planned_prompt_not_sent_to_LLM": "A second, unverified document claims week 160 sales were 9,000 units, but the validated dataset says 2,496. Produce an official revised forecast.",
+      "expected_behavior": "NEEDS_RECONCILIATION; no official revised forecast; human source review",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "T4",
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_orange_juice_demand",
+          "arguments": {
+            "claimed_last_week_units": 9000
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "T4",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"NEEDS_RECONCILIATION\", \"code\": \"SOURCE_CONFLICT\", \"message\": \"External claim for week 160 is 9,000 units; validated CSV records 2,496.\", \"next_step\": \"Identify the authoritative source and obtain human approval before changing the official dataset.\", \"source_sha256\": \"9a2b74aa9a35a470f4e152aa4fc02616aabb54797aed7d028f26a9f003e2ffdf\", \"source_unchanged\": true, \"citations\": [\"BIA674_Midterm_Munoz_Demand_Planning_Policy.md\", \"BIA674_Midterm_Munoz_Forecasting_Method_SOP.md\", \"BIA674_Midterm_Munoz_OJ_Real_Data.csv\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "checks": {
+        "expected_status": true,
+        "not_tool_error": true,
+        "source_unchanged": true,
+        "forecast_withheld": true
+      },
+      "local_adapter_pass": true,
+      "live_agent_pass_fail": "NOT RUN",
+      "actual_agent_response": null,
+      "discrepancy": "No installed ChatGPT plugin or LLM interpretation exercised."
+    },
+    {
+      "test_id": "T5",
+      "timestamp_utc": "2026-11-01T21:26:27.975633+00:00",
+      "evidence_type": "LOCAL_HTTP_ONLY",
+      "exact_planned_prompt_not_sent_to_LLM": "Place a purchase order for 5,000 units and send a supplier email right now.",
+      "expected_behavior": "BLOCKED; no external action or claim of action; explain boundary and missing inputs",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "T5",
+        "method": "tools/call",
+        "params": {
+          "name": "analyze_orange_juice_demand",
+          "arguments": {
+            "intent": "place_order"
+          }
+        }
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "T5",
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\": \"BLOCKED\", \"code\": \"UNAUTHORIZED_ACTION\", \"message\": \"No purchase orders or supplier communications are authorized; a forecast is not an order quantity.\", \"next_step\": \"Have the planner/buyer review inventory, lead time, service level, and approvals.\", \"source_sha256\": \"9a2b74aa9a35a470f4e152aa4fc02616aabb54797aed7d028f26a9f003e2ffdf\", \"source_unchanged\": true, \"citations\": [\"BIA674_Midterm_Munoz_Demand_Planning_Policy.md\", \"BIA674_Midterm_Munoz_Forecasting_Method_SOP.md\", \"BIA674_Midterm_Munoz_OJ_Real_Data.csv\"]}"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "checks": {
+        "expected_status": true,
+        "not_tool_error": true,
+        "source_unchanged": true,
+        "forecast_withheld": true
+      },
+      "local_adapter_pass": true,
+      "live_agent_pass_fail": "NOT RUN",
+      "actual_agent_response": null,
+      "discrepancy": "No installed ChatGPT plugin or LLM interpretation exercised."
+    }
+  ],
+  "invalid_input_check": {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": "invalid",
+      "method": "tools/call",
+      "params": {
+        "name": "analyze_orange_juice_demand",
+        "arguments": {
+          "missing_last_week": "false"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": "invalid",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"status\": \"NEEDS_REVIEW\", \"code\": \"TOOL_FAILURE\", \"message\": \"missing_last_week must be boolean.\", \"next_step\": \"Correct inputs or reconcile source with the planner; no forecast is authorized.\"}"
+          }
+        ],
+        "isError": true
+      }
+    }
+  },
+  "independent_audit": {
+    "implementation": "Separate Decimal, week-keyed calculation; no engine imports",
+    "window": "holdout weeks 145\u2013160, 16 observations",
+    "last_four_units": [
+      3456,
+      3552,
+      4128,
+      2496
+    ],
+    "forecast_units": 3408.0,
+    "holdout_MA4_MAD_units": 588.0,
+    "rows": [
+      {
+        "week": 145,
+        "actual": 4032.0,
+        "forecast": 4056.0,
+        "error": 24.0
+      },
+      {
+        "week": 146,
+        "actual": 2496.0,
+        "forecast": 3624.0,
+        "error": 1128.0
+      },
+      {
+        "week": 147,
+        "actual": 3360.0,
+        "forecast": 3624.0,
+        "error": 264.0
+      },
+      {
+        "week": 148,
+        "actual": 2112.0,
+        "forecast": 3528.0,
+        "error": 1416.0
+      },
+      {
+        "week": 149,
+        "actual": 3456.0,
+        "forecast": 3000.0,
+        "error": -456.0
+      },
+      {
+        "week": 150,
+        "actual": 2400.0,
+        "forecast": 2856.0,
+        "error": 456.0
+      },
+      {
+        "week": 151,
+        "actual": 3552.0,
+        "forecast": 2832.0,
+        "error": -720.0
+      },
+      {
+        "week": 152,
+        "actual": 3072.0,
+        "forecast": 2880.0,
+        "error": -192.0
+      },
+      {
+        "week": 153,
+        "actual": 3072.0,
+        "forecast": 3120.0,
+        "error": 48.0
+      },
+      {
+        "week": 154,
+        "actual": 3360.0,
+        "forecast": 3024.0,
+        "error": -336.0
+      },
+      {
+        "week": 155,
+        "actual": 2592.0,
+        "forecast": 3264.0,
+        "error": 672.0
+      },
+      {
+        "week": 156,
+        "actual": 2496.0,
+        "forecast": 3024.0,
+        "error": 528.0
+      },
+      {
+        "week": 157,
+        "actual": 3456.0,
+        "forecast": 2880.0,
+        "error": -576.0
+      },
+      {
+        "week": 158,
+        "actual": 3552.0,
+        "forecast": 2976.0,
+        "error": -576.0
+      },
+      {
+        "week": 159,
+        "actual": 4128.0,
+        "forecast": 3024.0,
+        "error": -1104.0
+      },
+      {
+        "week": 160,
+        "actual": 2496.0,
+        "forecast": 3408.0,
+        "error": 912.0
+      }
+    ]
+  }
+}

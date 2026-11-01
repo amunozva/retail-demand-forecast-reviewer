@@ -1,0 +1,219 @@
+{
+  "evidence_type": "local deterministic calculation tool execution only",
+  "not_plugin_execution": true,
+  "cases": {
+    "T1_typical": {
+      "request": {},
+      "actual_engine_output": {
+        "status": "OK",
+        "case": "BIA674_Midterm_Munoz_OJ_Real_Data.csv, Store 54, Brand 6, weeks 40-160",
+        "selected_model": "MA4",
+        "selection_rule": "Lowest validation MAD among Naive, MA4, SES and Holt (weeks 129-144).",
+        "forecast_week": 161,
+        "forecast_units": 3408.0,
+        "baseline_week_161_forecast_units": 3408.0,
+        "scenario_week_160_units": null,
+        "actual_week_160_units": 2496,
+        "validation_metrics": {
+          "Naive": {
+            "MAD_units": 1656.0,
+            "MSE_units_squared": 6637824.0,
+            "MAPE_percent": 42.498022848634534,
+            "mean_error_units": -36.0
+          },
+          "MA4": {
+            "MAD_units": 1141.5,
+            "MSE_units_squared": 3635604.0,
+            "MAPE_percent": 27.544026542148693,
+            "mean_error_units": 79.5
+          },
+          "SES": {
+            "MAD_units": 1389.2256565979278,
+            "MSE_units_squared": 3431400.60795598,
+            "MAPE_percent": 37.12652221030319,
+            "mean_error_units": 456.01233044947196
+          },
+          "Holt": {
+            "MAD_units": 1407.6525724739158,
+            "MSE_units_squared": 3962464.653567885,
+            "MAPE_percent": 34.70306876061552,
+            "mean_error_units": 110.64064616168122
+          },
+          "Seasonal naive 52 (diagnostic only)": {
+            "MAD_units": 1482.0,
+            "MSE_units_squared": 3602880.0,
+            "MAPE_percent": 38.95132495031075,
+            "mean_error_units": 474.0
+          }
+        },
+        "holdout_test_metrics": {
+          "Naive": {
+            "MAD_units": 768.0,
+            "MSE_units_squared": 861696.0,
+            "MAPE_percent": 27.11985491945521,
+            "mean_error_units": 108.0
+          },
+          "MA4": {
+            "MAD_units": 588.0,
+            "MSE_units_squared": 492408.0,
+            "MAPE_percent": 20.888291278280377,
+            "mean_error_units": 93.0
+          },
+          "SES": {
+            "MAD_units": 641.6167723036715,
+            "MSE_units_squared": 681904.7369780036,
+            "MAPE_percent": 24.375390530835855,
+            "mean_error_units": 481.2458208324434
+          },
+          "Holt": {
+            "MAD_units": 590.3714150871238,
+            "MSE_units_squared": 461381.1059890823,
+            "MAPE_percent": 19.445756447686154,
+            "mean_error_units": -168.27208045240383
+          },
+          "Seasonal naive 52 (diagnostic only)": {
+            "MAD_units": 1374.0,
+            "MSE_units_squared": 3334464.0,
+            "MAPE_percent": 49.61627268658519,
+            "mean_error_units": 1302.0
+          }
+        },
+        "independent_check": true,
+        "units": "retail units per week",
+        "error_sign": "forecast minus actual",
+        "human_approval_required": true,
+        "warnings": [
+          "This historical dataset has no actual demand for week 161.",
+          "The output is a demand forecast, NOT a purchase order.",
+          "On-hand inventory, supplier lead times and promotion plans are not provided.",
+          "Holt has lower holdout MAPE than MA4; MA4 is chosen by validation MAD.",
+          "No model was selected or tuned based on holdout performance."
+        ]
+      }
+    },
+    "T2_changed_conditions": {
+      "request": {
+        "scenario_last_week_units": 6000
+      },
+      "actual_engine_output": {
+        "status": "SIMULATED",
+        "case": "BIA674_Midterm_Munoz_OJ_Real_Data.csv, Store 54, Brand 6, weeks 40-160",
+        "selected_model": "MA4",
+        "selection_rule": "Lowest validation MAD among Naive, MA4, SES and Holt (weeks 129-144).",
+        "forecast_week": 161,
+        "forecast_units": 4284.0,
+        "baseline_week_161_forecast_units": 3408.0,
+        "scenario_week_160_units": 6000,
+        "actual_week_160_units": 2496,
+        "validation_metrics": {
+          "Naive": {
+            "MAD_units": 1656.0,
+            "MSE_units_squared": 6637824.0,
+            "MAPE_percent": 42.498022848634534,
+            "mean_error_units": -36.0
+          },
+          "MA4": {
+            "MAD_units": 1141.5,
+            "MSE_units_squared": 3635604.0,
+            "MAPE_percent": 27.544026542148693,
+            "mean_error_units": 79.5
+          },
+          "SES": {
+            "MAD_units": 1389.2256565979278,
+            "MSE_units_squared": 3431400.60795598,
+            "MAPE_percent": 37.12652221030319,
+            "mean_error_units": 456.01233044947196
+          },
+          "Holt": {
+            "MAD_units": 1407.6525724739158,
+            "MSE_units_squared": 3962464.653567885,
+            "MAPE_percent": 34.70306876061552,
+            "mean_error_units": 110.64064616168122
+          },
+          "Seasonal naive 52 (diagnostic only)": {
+            "MAD_units": 1482.0,
+            "MSE_units_squared": 3602880.0,
+            "MAPE_percent": 38.95132495031075,
+            "mean_error_units": 474.0
+          }
+        },
+        "holdout_test_metrics": {
+          "Naive": {
+            "MAD_units": 768.0,
+            "MSE_units_squared": 861696.0,
+            "MAPE_percent": 27.11985491945521,
+            "mean_error_units": 108.0
+          },
+          "MA4": {
+            "MAD_units": 588.0,
+            "MSE_units_squared": 492408.0,
+            "MAPE_percent": 20.888291278280377,
+            "mean_error_units": 93.0
+          },
+          "SES": {
+            "MAD_units": 641.6167723036715,
+            "MSE_units_squared": 681904.7369780036,
+            "MAPE_percent": 24.375390530835855,
+            "mean_error_units": 481.2458208324434
+          },
+          "Holt": {
+            "MAD_units": 590.3714150871238,
+            "MSE_units_squared": 461381.1059890823,
+            "MAPE_percent": 19.445756447686154,
+            "mean_error_units": -168.27208045240383
+          },
+          "Seasonal naive 52 (diagnostic only)": {
+            "MAD_units": 1374.0,
+            "MSE_units_squared": 3334464.0,
+            "MAPE_percent": 49.61627268658519,
+            "mean_error_units": 1302.0
+          }
+        },
+        "independent_check": true,
+        "units": "retail units per week",
+        "error_sign": "forecast minus actual",
+        "human_approval_required": true,
+        "warnings": [
+          "This historical dataset has no actual demand for week 161.",
+          "The output is a demand forecast, NOT a purchase order.",
+          "On-hand inventory, supplier lead times and promotion plans are not provided.",
+          "Holt has lower holdout MAPE than MA4; MA4 is chosen by validation MAD.",
+          "No model was selected or tuned based on holdout performance."
+        ]
+      }
+    },
+    "T3_missing_info": {
+      "request": {
+        "missing_last_week": true
+      },
+      "actual_engine_output": {
+        "status": "NEEDS_INPUT",
+        "code": "MISSING_CRITICAL_DEMAND",
+        "message": "Week 160 actual demand is missing for this revised scenario. The official value cannot be reused without permission.",
+        "next_step": "Provide or confirm the actual week 160 demand; do not invent or silently fill the value."
+      }
+    },
+    "T4_conflict": {
+      "request": {
+        "claimed_last_week_units": 9000
+      },
+      "actual_engine_output": {
+        "status": "NEEDS_RECONCILIATION",
+        "code": "SOURCE_CONFLICT",
+        "message": "External claim for week 160 is 9,000 units; validated CSV records 2,496.",
+        "next_step": "Identify the authoritative source and obtain human approval before changing the official dataset."
+      }
+    },
+    "T5_unsupported": {
+      "request": {
+        "intent": "place_order"
+      },
+      "actual_engine_output": {
+        "status": "BLOCKED",
+        "code": "UNAUTHORIZED_ACTION",
+        "message": "No purchase orders or supplier communications are authorized; a forecast is not an order quantity.",
+        "next_step": "Have the planner/buyer review inventory, lead time, service level, and approvals."
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+test_baseline (test_engine.ForecastTests.test_baseline) ... ok
+test_conflict (test_engine.ForecastTests.test_conflict) ... ok
+test_missing (test_engine.ForecastTests.test_missing) ... ok
+test_purchase (test_engine.ForecastTests.test_purchase) ... ok
+test_scenario (test_engine.ForecastTests.test_scenario) ... ok
+test_time_order_no_leakage (test_engine.ForecastTests.test_time_order_no_leakage) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK
