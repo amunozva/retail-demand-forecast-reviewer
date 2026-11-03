@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 WORKDIR /app
+RUN pip install --no-cache-dir "PyJWT[crypto]>=2.8,<3"
 COPY forecast_tool ./forecast_tool
 COPY knowledge ./knowledge
 COPY docs/tool_contract.json ./docs/tool_contract.json
