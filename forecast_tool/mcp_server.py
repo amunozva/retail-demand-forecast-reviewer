@@ -3,6 +3,8 @@ Loopback by default. Remote use requires an authenticated TLS gateway; this adap
 checks a server-side bearer secret but does not implement ChatGPT OAuth discovery.
 """
 import hmac,json,os,hashlib,math
+from urllib.parse import urlsplit
+from forecast_tool import oauth_auth
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 from forecast_tool.engine import run,InputError,DATA
@@ -75,20 +77,31 @@ def dispatch(msg):
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args): pass
-    def respond(self,status,data=None):
+    def respond(self,status,data=None,headers=None):
         body=b'' if data is None else json.dumps(data).encode()
         self.send_response(status)
         self.send_header('Content-Type','application/json')
         self.send_header('Content-Length',str(len(body)))
+        for key,value in (headers or {}).items():self.send_header(key,value)
         self.end_headers();self.wfile.write(body)
-    def do_GET(self): self.respond(405,{'error':'Use POST /mcp'})
+    def do_GET(self):
+        path=urlsplit(self.path).path
+        if os.getenv('MCP_AUTH_MODE')=='oauth' and path in (oauth_auth.METADATA_PATH,'/.well-known/oauth-protected-resource'):
+            return self.respond(200,oauth_auth.metadata())
+        if path=='/mcp':return self.respond(405,{'error':'Use POST /mcp'},{'Allow':'POST'})
+        return self.respond(404)
     def do_POST(self):
-        if self.path!='/mcp': return self.respond(404)
+        if urlsplit(self.path).path!='/mcp': return self.respond(404)
         # Browser-origin requests are unnecessary for this server-to-server tool.
         if self.headers.get('Origin'): return self.respond(403)
-        secret=os.environ.get('MCP_BEARER_TOKEN')
-        if secret and not hmac.compare_digest(self.headers.get('Authorization',''),'Bearer '+secret):
-            return self.respond(401,{'error':'Authentication required'})
+        if os.getenv('MCP_AUTH_MODE')=='oauth':
+            if not oauth_auth.verify(self.headers.get('Authorization','')):
+                return self.respond(401,{'error':'Authentication required'},
+                                    {'WWW-Authenticate':oauth_auth.challenge()})
+        else:
+            secret=os.environ.get('MCP_BEARER_TOKEN')
+            if secret and not hmac.compare_digest(self.headers.get('Authorization',''),'Bearer '+secret):
+                return self.respond(401,{'error':'Authentication required'})
         try:
             length=int(self.headers.get('Content-Length','0'))
             if not 0<length<=65536: return self.respond(413)
@@ -101,6 +114,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__=='__main__':
     host=os.environ.get('MCP_HOST','127.0.0.1')
-    if host not in ('127.0.0.1','localhost','::1') and not os.environ.get('MCP_BEARER_TOKEN'):
+    if os.getenv('MCP_AUTH_MODE')=='oauth':oauth_auth.validate_config()
+    elif host not in ('127.0.0.1','localhost','::1') and not os.environ.get('MCP_BEARER_TOKEN'):
         raise SystemExit('Non-loopback binding requires MCP_BEARER_TOKEN from environment.')
     ThreadingHTTPServer((host,int(os.environ.get('PORT','8080'))),Handler).serve_forever()
