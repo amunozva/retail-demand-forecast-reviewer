@@ -12,5 +12,11 @@ services:
     envVars:
       - key: MCP_HOST
         value: 0.0.0.0
-      - key: MCP_BEARER_TOKEN
-        sync: false
+      - key: MCP_AUTH_MODE
+        value: oauth
+      - key: AUTH0_DOMAIN
+        value: dev-b8nt1qlq3zd4hjh5.us.auth0.com
+      - key: MCP_RESOURCE_URI
+        value: https://retail-demand-forecast-reviewer.onrender.com/mcp
+      - key: AUTH0_REQUIRED_SCOPE
+        value: forecast:read
